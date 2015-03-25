@@ -12,16 +12,12 @@ requires = [
     'pyramid',
     'pyramid_chameleon',
     'pyramid_debugtoolbar',
-    'pyramid_tm',
-    'SQLAlchemy',
-    'transaction',
-    'zope.sqlalchemy',
     'waitress',
     ]
 
-setup(name='little',
+setup(name='app',
       version='0.0',
-      description='little',
+      description='app',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
         "Programming Language :: Python",
@@ -32,16 +28,15 @@ setup(name='little',
       author='',
       author_email='',
       url='',
-      keywords='web wsgi bfg pylons pyramid',
+      keywords='web pyramid pylons',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
-      test_suite='little',
       install_requires=requires,
+      tests_require=requires,
+      test_suite="app",
       entry_points="""\
       [paste.app_factory]
-      main = little:main
-      [console_scripts]
-      initialize_little_db = little.scripts.initializedb:main
+      main = app:main
       """,
       )
