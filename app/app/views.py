@@ -114,12 +114,11 @@ def my_view(request):
         print 'error rendering files'
         raise exception_response(500)
 
-    # # delete files
-    # print 'deleting directory: {}'.format(direc)
-    # try:
-    #     rmtree(direc)           # band images and composite
-    # except OSError:
-    #     print 'error deleting files'
-
+    # delete files
+    print 'deleting directory: {}'.format(direc)
+    try:
+        rmtree(direc)           # band images and composite
+    except OSError:
+        print 'error deleting files'
 
     return HTTPFound(location=out)

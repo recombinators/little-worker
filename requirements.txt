@@ -1,5 +1,6 @@
 affine==1.1.0
 app==0.0
+boto==2.36.0
 Chameleon==2.22
 click==3.3
 cligj==0.1.0
@@ -11,6 +12,7 @@ Mako==1.0.1
 MarkupSafe==0.23
 numpy==1.9.1
 PasteDeploy==1.5.2
+psycopg2==2.6
 pycurl==7.19.5.1
 Pygments==2.0.2
 pyramid==1.5.4
