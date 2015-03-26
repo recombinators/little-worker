@@ -58,3 +58,5 @@ target/
 *.sublime-workspace
 
 /app/scenes
+
+.DS_Store
