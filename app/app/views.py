@@ -19,7 +19,6 @@ direc = os.getcwd()
 AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
 AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 
-
 @view_config(route_name='home', renderer='json')
 def my_view(request):
     direc = os.getcwd() + '/scenes'
@@ -37,7 +36,6 @@ def my_view(request):
         return HTTPFound(location=out)
 
     try:
-
         direc_scene = '{direc}/{scene}'.format(direc=direc, scene=scene)
 
         direc_scene_scene = '{direc}/{scene}/{scene}'.format(direc=direc, scene=scene)
@@ -109,6 +107,9 @@ def my_view(request):
         # make public
         hello.set_canned_acl('public-read')
         out = hello.generate_url(0, query_auth=False, force_http=True)
+
+        # store url in db
+        Rendered_Model.update_p_url(scene, b1, b2, b3, out)
     except:
         print 'error rendering files'
         raise exception_response(500)
@@ -119,5 +120,6 @@ def my_view(request):
         rmtree(direc)           # band images and composite
     except OSError:
         print 'error deleting files'
+
 
     return HTTPFound(location=out)
