@@ -33,7 +33,7 @@ class Rendered_Model(Base):
                                                  cls.previewurl.isnot(None))
             return output.one().previewurl
         except:
-            print 'Database query failed'
+            print 'Database query failed in method: preview available'
             return None
 
     @classmethod

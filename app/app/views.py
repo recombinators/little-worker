@@ -54,8 +54,8 @@ def my_view(request):
         # o3 = root + path + '/' + row + '/' + scene + '/' + scene + '_B' + b3 + '.TIF.ovr'
 
         # Create a subdirectory
-        if not os.path.exists(direc):
-            os.makedirs(direc)
+        if not os.path.exists(direc_scene):
+            os.makedirs(direc_scene)
 
         # Download a sacrificial band(1) using Landsat-util
         dl = Downloader(verbose=True, download_dir=direc)
@@ -64,20 +64,20 @@ def my_view(request):
         # Strip the geospatial metadata from a legitimate Landsat band.
         # Create a world.tfw to reapply to previews.
         subprocess.call(['listgeo', '-tfw', direc_scene_scene + '_B1.TIF'])
-        os.rename(direc_scene_scene + '_B1.tfw', direc + '/' + 'world.tfw')
+        os.rename(direc_scene_scene + '_B1.tfw', direc_scene + '/' + 'world.tfw')
 
         # Download previews from AWS
-        download(url=o1, path=direc)
-        download(url=o2, path=direc)
-        download(url=o3, path=direc)
-        print 'done downloding previews from aws'
+        download(url=o1, path=direc_scene)
+        download(url=o2, path=direc_scene)
+        download(url=o3, path=direc_scene)
+        print 'done downloading previews from aws'
 
-        direc_world = '{}/world.tfw'.format(direc)
+        direc_world = '{}/world.tfw'.format(direc_scene)
         # direc_scene_band = '{direc}/{scene}_{band}.TIF.ovr'.format(direc=direc, scene=scene, band=b1)
         # Apply the stripped world file to the band previews.
-        subprocess.call(['geotifcp', '-e', direc_world, '{direc}/{scene}_B{band}.TIF.ovr'.format(direc=direc, scene=scene, band=b1), direc + '/B' + b1 + '-geo.TIF'])
-        subprocess.call(['geotifcp', '-e', direc_world, '{direc}/{scene}_B{band}.TIF.ovr'.format(direc=direc, scene=scene, band=b2), direc + '/B' + b2 + '-geo.TIF'])
-        subprocess.call(['geotifcp', '-e', direc_world, '{direc}/{scene}_B{band}.TIF.ovr'.format(direc=direc, scene=scene, band=b3), direc + '/B' + b3 + '-geo.TIF'])
+        subprocess.call(['geotifcp', '-e', direc_world, '{direc}/{scene}_B{band}.TIF.ovr'.format(direc=direc_scene, scene=scene, band=b1), direc + '/B' + b1 + '-geo.TIF'])
+        subprocess.call(['geotifcp', '-e', direc_world, '{direc}/{scene}_B{band}.TIF.ovr'.format(direc=direc_scene, scene=scene, band=b2), direc + '/B' + b2 + '-geo.TIF'])
+        subprocess.call(['geotifcp', '-e', direc_world, '{direc}/{scene}_B{band}.TIF.ovr'.format(direc=direc_scene, scene=scene, band=b3), direc + '/B' + b3 + '-geo.TIF'])
         print 'done applying world file to previews'
 
         # Resize each band
@@ -114,11 +114,11 @@ def my_view(request):
         print 'error rendering files'
         raise exception_response(500)
 
-    # delete files
-    print 'deleting directory: {}'.format(direc)
-    try:
-        rmtree(direc)           # band images and composite
-    except OSError:
-        print 'error deleting files'
+    # # delete files
+    # print 'deleting directory: {}'.format(direc)
+    # try:
+    #     rmtree(direc)           # band images and composite
+    # except OSError:
+    #     print 'error deleting files'
 
     return HTTPFound(location=out)
