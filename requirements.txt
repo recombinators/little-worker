@@ -1,0 +1,2 @@
+PasteDeploy==1.5.2
+waitress==0.8.9
