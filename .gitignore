@@ -56,3 +56,7 @@ target/
 # Sublime
 *.sublime-project
 *.sublime-workspace
+
+/app/scenes
+
+.DS_Store
