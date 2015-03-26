@@ -10,6 +10,8 @@ def my_view(request):
     b2 = request.matchdict['b2']
     b3 = request.matchdict['b3']
     awsRoot = 'http://landsat-pds.s3.amazonaws.com/L8/'
+    path = scene[3:6]
+    row = scene[6:9]
 
     # Create a subdirectory
     subprocess.call(['mkdir', scene])
