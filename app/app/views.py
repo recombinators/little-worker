@@ -11,6 +11,7 @@ from image import Process
 from pyramid.httpexceptions import HTTPFound
 from shutil import rmtree
 from pyramid.httpexceptions import exception_response
+from models import Rendered_Model
 
 
 direc = os.getcwd()
@@ -21,17 +22,22 @@ AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 
 @view_config(route_name='home', renderer='json')
 def my_view(request):
-    try:
-        # Check if image already exists.
+    direc = os.getcwd() + '/scenes'
+    scene = request.matchdict['id']
+    root = 'http://landsat-pds.s3.amazonaws.com/L8/'
+    path = scene[3:6]
+    row = scene[6:9]
+    b1 = request.matchdict['b1']
+    b2 = request.matchdict['b2']
+    b3 = request.matchdict['b3']
 
-        direc = os.getcwd() + '/scenes'
-        scene = request.matchdict['id']
-        root = 'http://landsat-pds.s3.amazonaws.com/L8/'
-        path = scene[3:6]
-        row = scene[6:9]
-        b1 = request.matchdict['b1']
-        b2 = request.matchdict['b2']
-        b3 = request.matchdict['b3']
+    # Check if image already exists.
+    out = Rendered_Model.preview_available(scene, b1, b2, b3)
+    if out:
+        return HTTPFound(location=out)
+
+    try:
+
         direc_scene = '{direc}/{scene}'.format(direc=direc, scene=scene)
 
         direc_scene_scene = '{direc}/{scene}/{scene}'.format(direc=direc, scene=scene)
@@ -100,6 +106,8 @@ def my_view(request):
         k.set_contents_from_filename(direc + '/final.png')
         k.get_contents_to_filename(direc + '/final.png')
         hello = b.get_key(scene + b1 + b2 + b3 + '.png')
+        hello.set_canned_acl('public-read')
+        out = hello.generate_url(0, query_auth=False, force_http=True)
     except:
         print 'error rendering files'
         raise exception_response(500)
@@ -112,6 +120,5 @@ def my_view(request):
         print 'error deleting files'
 
     # make public
-    hello.set_canned_acl('public-read')
-    out = hello.generate_url(0, query_auth=False, force_http=True)
+
     return HTTPFound(location=out)
