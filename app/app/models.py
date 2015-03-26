@@ -36,40 +36,55 @@ class Rendered_Model(Base):
     #     DBSession.add(job)
 
     @classmethod
-    def update(cls, jobid, currentlyrend, renderurl):
-        '''Method updates entry into db given jobid and optional url.'''
+    def preview_available(cls, scene, band1, band2, band3):
+        '''Check if preview image is already rendered'''
         try:
-            DBSession.query(cls).filter(cls.jobid == jobid).update({"currentlyrend": currentlyrend,"renderurl": renderurl})
-        except:
-            print 'could not update db'
-
-    @classmethod
-    def available(cls, entityid):
-        '''Return list of existing jobs for a given sceneID.'''
-        try:
-            rendered = DBSession.query(cls).filter(cls.entityid == entityid).all()
-        except:
-            print 'Database query failed'
-            return None
-        return rendered
-
-    @classmethod
-    def already_available(cls, entityid, band1, band2, band3):
-        '''Check if given image is already rendered'''
-        try:
-            output = DBSession.query(cls).filter(cls.entityid == entityid,
+            output = DBSession.query(cls).filter(cls.entityid == scene,
                                                  cls.band1 == band1,
                                                  cls.band2 == band2,
                                                  cls.band3 == band3,
-                                                 cls.renderurl.isnot(None)).count()
+                                                 cls.previewurl.isnot(None))
+            import pdb; pdb.set_trace()
+            return output.one().previewurl
         except:
             print 'Database query failed'
             return None
-        if output != 0:
-            # if this scene/band has already been requested, increase the count
-            existing = DBSession.query(cls).filter(cls.entityid == entityid,
-                                                   cls.band1 == band1,
-                                                   cls.band2 == band2,
-                                                   cls.band3 == band3).update({
-                                                   "rendercount": cls.rendercount+1})
-        return output != 0
+
+    # @classmethod
+    # def update(cls, jobid, currentlyrend, renderurl):
+    #     '''Method updates entry into db given jobid and optional url.'''
+    #     try:
+    #         DBSession.query(cls).filter(cls.jobid == jobid).update({"currentlyrend": currentlyrend,"renderurl": renderurl})
+    #     except:
+    #         print 'could not update db'
+
+    # @classmethod
+    # def available(cls, entityid):
+    #     '''Return list of existing jobs for a given sceneID.'''
+    #     try:
+    #         rendered = DBSession.query(cls).filter(cls.entityid == entityid).all()
+    #     except:
+    #         print 'Database query failed'
+    #         return None
+    #     return rendered
+
+    # @classmethod
+    # def already_available(cls, entityid, band1, band2, band3):
+    #     '''Check if given image is already rendered'''
+    #     try:
+    #         output = DBSession.query(cls).filter(cls.entityid == entityid,
+    #                                              cls.band1 == band1,
+    #                                              cls.band2 == band2,
+    #                                              cls.band3 == band3,
+    #                                              cls.renderurl.isnot(None)).count()
+    #     except:
+    #         print 'Database query failed'
+    #         return None
+    #     if output != 0:
+    #         # if this scene/band has already been requested, increase the count
+    #         existing = DBSession.query(cls).filter(cls.entityid == entityid,
+    #                                                cls.band1 == band1,
+    #                                                cls.band2 == band2,
+    #                                                cls.band3 == band3).update({
+    #                                                "rendercount": cls.rendercount+1})
+    #     return output != 0

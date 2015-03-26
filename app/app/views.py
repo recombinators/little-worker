@@ -106,6 +106,7 @@ def my_view(request):
         k.set_contents_from_filename(direc + '/final.png')
         k.get_contents_to_filename(direc + '/final.png')
         hello = b.get_key(scene + b1 + b2 + b3 + '.png')
+        # make public
         hello.set_canned_acl('public-read')
         out = hello.generate_url(0, query_auth=False, force_http=True)
     except:
@@ -118,7 +119,5 @@ def my_view(request):
         rmtree(direc)           # band images and composite
     except OSError:
         print 'error deleting files'
-
-    # make public
 
     return HTTPFound(location=out)
