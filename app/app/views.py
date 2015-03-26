@@ -2,9 +2,9 @@ import os
 import subprocess
 from pyramid.view import view_config
 
-
 @view_config(route_name='home', renderer='json')
 def my_view(request):
+    dir = os.path.dirname(os.path.abspath(__file__))
     scene = request.matchdict['id']
     root = 'http://landsat-pds.s3.amazonaws.com/L8/'
     path = scene[3:6]
@@ -17,42 +17,44 @@ def my_view(request):
     o3 = root + path + '/' + row + '/' + scene + '/' + scene + '_B' + b3 + '.TIF.ovr'
 
     # Create a subdirectory
+    print 'Creating folder'
     subprocess.call(['mkdir', scene])
 
     # Download a sacrificial band.
+    print 'Downloading sacrificial band'
     subprocess.call(['landsat', 'download', scene, '--bands', '1'])
 
     # Strip the geospatial metadata from a legitimate Landsat band.
-    subprocess.call(['listgeo', '-tfw', scene + '_B1.TIF'])
-
     # Create a world.tfw to reapply to previews.
+    print 'Extracting TFW'
+    subprocess.call(['listgeo', '-tfw', scene + '_B1.TIF'])
     subprocess.call(['mv', scene + '_B1.tfw', 'world.tfw'])
 
     # Curl previews from AWS
-    subprocess.call(['wget', o1])
-    subprocess.call(['wget', o2])
-    subprocess.call(['wget', o3])
+    print 'Downloading preview images'
+    subprocess.call(['wget', '-P', dir, o1])
+    subprocess.call(['wget', '-P', dir, o2])
+    subprocess.call(['wget', '-P', dir, o3])
 
-    return o1
-
-    # # Apply the stripped world file to the band previews.
-    # subprocess.call(['geotifcp', '-e', 'world.tfw', scene + '_B2.TIF', 'B2-thumbnail.TIF'])
-    # subprocess.call(['geotifcp', '-e', 'world.tfw', scene + '_B3.TIF', 'B3-thumbnail.TIF'])
-    # subprocess.call(['geotifcp', '-e', 'world.tfw', scene + '_B5.TIF', 'B5-thumbnail.TIF'])
+    # Apply the stripped world file to the band previews.
+    print 'Applying TFW to preview images'
+    subprocess.call(['geotifcp', '-e', 'world.tfw', scene + '_B2.TIF', 'B2-thumbnail.TIF'])
+    subprocess.call(['geotifcp', '-e', 'world.tfw', scene + '_B3.TIF', 'B3-thumbnail.TIF'])
+    subprocess.call(['geotifcp', '-e', 'world.tfw', scene + '_B5.TIF', 'B5-thumbnail.TIF'])
 
     # # Resize each band
+    # print 'Resizing preview images'
     # subprocess.call(['gdal_translate', '-outsize', '15%', '15%', 'B2.TIF', sceneID + '/' + sceneID + '_B2.TIF'])
     # subprocess.call(['gdal_translate', '-outsize', '15%', '15%', 'B3.TIF', sceneID + '/' + sceneID + '_B3.TIF'])
     # subprocess.call(['gdal_translate', '-outsize', '15%', '15%', 'B5.TIF', sceneID + '/' + sceneID + '_B5.TIF'])
 
     # # Call landsat-util
+    # print 'Generating preview composite'
     # subprocess.call(['landsat', 'process', sceneID, '--bands', '532'])
 
     # # Convert black to transparent and save as PNG
+    # print 'Convert pure black to transparent and save as png.'
     # lsUtilPath = '/Users/Jacques/landsat/processed/' + sceneID + '/'
     # print lsUtilPath
 
     # subprocess.call(['convert', '-transparent', 'black', lsUtilPath + sceneID + '_bands_532.TIF', 'final.png'])
-
-    # return {'project': 'app'}
-
