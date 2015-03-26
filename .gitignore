@@ -56,3 +56,5 @@ target/
 # Sublime
 *.sublime-project
 *.sublime-workspace
+
+/app/scenes

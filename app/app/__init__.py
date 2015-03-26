@@ -5,6 +5,6 @@ def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
     config = Configurator(settings=settings)
-    config.add_route('home', '/{id}/{b1}{b2}{b3}/preview/')
+    config.add_route('home', '/{id}/{b1}/{b2}/{b3}/preview.png')
     config.scan()
     return config.make_wsgi_app()
