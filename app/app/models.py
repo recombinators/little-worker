@@ -2,6 +2,7 @@ from sqlalchemy import Column, update, Index, Integer, Boolean, UnicodeText, fun
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from zope.sqlalchemy import ZopeTransactionExtension
+import transaction
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
@@ -38,12 +39,17 @@ class Rendered_Model(Base):
     @classmethod
     def update_p_url(cls, scene, band1, band2, band3, previewurl):
         '''Method updates entry into db with preview url.'''
+        band1 = int(band1)
+        band2 = int(band2)
+        band3 = int(band3)
+        previewurl = u'{}'.format(previewurl)
         try:
-            DBSession.query(cls).filter(cls.entityid == scene,
-                                        cls.band1 == band1,
-                                        cls.band2 == band2,
-                                        cls.band3 == band3,
-                                        cls.previewurl.is_(None)
-                                        ).update({"previewurl": previewurl})
+            entry = DBSession.query(cls).filter(cls.entityid == scene,
+                                                cls.band1 == band1,
+                                                cls.band2 == band2,
+                                                cls.band3 == band3,
+                                                cls.previewurl.is_(None))
+            entry.update({"previewurl": previewurl})
+            transaction.commit()
         except:
             print 'could not add preview url to db'
