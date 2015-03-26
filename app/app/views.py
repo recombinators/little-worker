@@ -16,8 +16,6 @@ def my_view(request):
     o2 = root + path + '/' + row + '/' + scene + '/' + scene + '_B' + b2 + '.TIF.ovr'
     o3 = root + path + '/' + row + '/' + scene + '/' + scene + '_B' + b3 + '.TIF.ovr'
 
-    import pdb; pdb.set_trace()
-
     # Create a subdirectory
     subprocess.call(['mkdir', scene])
 
