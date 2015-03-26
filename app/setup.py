@@ -9,7 +9,6 @@ with open(os.path.join(here, 'CHANGES.txt')) as f:
     CHANGES = f.read()
 
 requires = ['affine',
-            'app',
             'boto',
             'Chameleon',
             'click',
