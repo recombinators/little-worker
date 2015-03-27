@@ -52,8 +52,8 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
             download(url=i, path=direc_scene)
     except:
         out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/faileddownload.png'
-        return out
-        # raise Exception('Download failed')
+        # return out
+        raise Exception('Download failed')
 
     print 'done downloading previews from aws'
     # Apply the stripped world file to the band previews.
@@ -74,8 +74,8 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
                          file_name, file_name2])
         if not os.path.exists(file_name2):
             out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/badmagicnumber.png'
-            return out
-            # raise Exception('Bad magic number')
+            # return out
+            raise Exception('Bad magic number')
     print 'done resizing 3 images'
 
     # Call landsat-util to merge images
@@ -85,8 +85,8 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
         processor.run(pansharpen=False)
     except:
         out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/processfailed.png'
-        return out
-        # raise Exception('Processing/landsat-util failed')
+        # return out
+        raise Exception('Processing/landsat-util failed')
 
     # Convert black to transparent and save as PNG
     file_in = '{}_bands_{}{}{}.TIF'.format(direc_scene_scene, b1, b2, b3)
@@ -96,8 +96,8 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     # check if final.png exists
     if not os.path.isfile('{}/final.png'.format(direc_scene)):
         out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/finalpngnotcomposed.png'
-        return out
-        # raise Exception('Final.png not rendered')
+        # return out
+        raise Exception('Final.png not rendered')
 
     # upload to s3
     try:
@@ -114,8 +114,8 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
         out = hello.generate_url(0, query_auth=False, force_http=True)
     except:
         out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/connectiontoS3failed.png'
-        return out
-        # raise Exception('S3 upload failed')
+        # return out
+        raise Exception('S3 upload failed')
 
     # store url in db
     Rendered_Model.update_p_url(scene, b1, b2, b3, out)
@@ -144,6 +144,8 @@ def my_view(request):
         except:
             # delete files
             delete_directory(direc)
-            out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/errordeletingfiles.png'
+            out = "https://s3-us-west-2.amazonaws.com/landsat-pds/L8/{path}/{row}/{scene}/{scene}_thumb_large.jpg".format(
+                    path=path, row=row, scene=scene)
+            # out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/errordeletingfiles.png'
 
     return HTTPFound(location=out)
