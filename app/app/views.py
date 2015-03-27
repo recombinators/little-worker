@@ -109,9 +109,6 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     hello.set_canned_acl('public-read')
     out = hello.generate_url(0, query_auth=False, force_http=True)
 
-    # store url in db
-    Rendered_Model.update_p_url(scene, b1, b2, b3, out)
-
     # delete files
     print 'deleting directory: {}'.format(direc)
     try:
@@ -143,6 +140,9 @@ def my_view(request):
         out = process_image(direc, scene, root, path, row, b1, b2, b3)
     except:
         print 'ERROR rendering files'
-        raise exception_response(500)
+        out = u'https://raw.githubusercontent.com/jacquestardie/gifs/master/baby.gif'
+
+    # store url in db
+    Rendered_Model.update_p_url(scene, b1, b2, b3, out)
 
     return HTTPFound(location=out)
