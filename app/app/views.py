@@ -112,14 +112,14 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     # store url in db
     Rendered_Model.update_p_url(scene, b1, b2, b3, out)
 
-    # delete files
-    print 'deleting directory: {}'.format(direc)
-    try:
-        rmtree(direc)           # band images and composite
-    except OSError:
-        print 'error deleting files'
+    # # delete files
+    # print 'deleting directory: {}'.format(direc)
+    # try:
+    #     rmtree(direc)           # band images and composite
+    # except OSError:
+    #     print 'error deleting files'
 
-    return out
+    # return out
 
 
 @view_config(route_name='home', renderer='json')
