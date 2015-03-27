@@ -51,7 +51,7 @@ def process_image(direc, scene, root, path, row, b1, b2, b3, geo):
     # Create a world.tfw to reapply to previews.
     # geo variable represents the band we grab geo data from
     subprocess.call(['listgeo', '-tfw', direc_scene_scene + '_B{}.TIF'.format(geo)])
-    os.rename(direc_scene_scene + '_B1.tfw', direc_scene + '/' + 'world.tfw')
+    os.rename(direc_scene_scene + '_B{}.tfw'.format(geo), direc_scene + '/' + 'world.tfw')
 
     # Download previews from AWS
     download(url=o1, path=direc_scene)
