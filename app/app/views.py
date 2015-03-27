@@ -45,7 +45,7 @@ def process_image(direc, scene, root, path, row, b1, b2, b3, geo):
 
     # Download a sacrificial band(1) using Landsat-util
     dl = Downloader(verbose=True, download_dir=direc)
-    dl.download([str(scene)], ['1'])
+    dl.download([str(scene)], [geo])
 
     # Strip the geospatial metadata from a legitimate Landsat band.
     # Create a world.tfw to reapply to previews.
