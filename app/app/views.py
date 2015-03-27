@@ -9,7 +9,6 @@ from homura import download
 from image import Process
 from pyramid.httpexceptions import HTTPFound
 from shutil import rmtree
-from pyramid.httpexceptions import exception_response
 from models import Rendered_Model
 import os.path
 
@@ -23,12 +22,10 @@ direc_world = '{}/world.tfw'.format(os.getcwd())
 
 def delete_directory(direc):
     # delete files
-    # print 'deleting directory: {}'.format(direc)
-    # try:
-    #     rmtree(direc)
-    # except OSError:
-    #     raise Exception('error deleting files')
-    pass
+    try:
+        rmtree(direc)
+    except OSError:
+        raise Exception('error deleting files')
 
 
 def process_image(direc, scene, root, path, row, b1, b2, b3):
@@ -65,8 +62,6 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
                          '{direc}/{scene}_B{band}.TIF.ovr'.format(
                          direc=direc_scene, scene=scene, band=b),
                          file_name])
-
-
     print 'done applying world file to previews'
 
     # Resize each band
@@ -123,7 +118,6 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
 
     # delete files
     delete_directory(direc)
-
     return out
 
 
@@ -149,6 +143,6 @@ def my_view(request):
         except:
             # delete files
             delete_directory(direc)
-            out = u'https://raw.githubusercontent.com/jacquestardie/gifs/master/baby.gif'
+            out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/errordeletingfiles.png'
 
     return HTTPFound(location=out)
