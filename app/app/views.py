@@ -143,7 +143,6 @@ def my_view(request):
     for x in possible_bands:
         try:
             process_image(direc, scene, root, path, row, b1, b2, b3, x)
-            break
         except:
             print 'error rendering files with geo band {}'.format(x)
             if x == 11:
