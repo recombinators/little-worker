@@ -60,15 +60,15 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
 
     # Apply the stripped world file to the band previews.
     subprocess.call(['geotifcp', '-e', direc_world,
-                     '{direc}/{scene}_B{band}.TIF'.format(
+                     '{direc}/{scene}_B{band}.TIF.ovr'.format(
                      direc=direc_scene, scene=scene, band=b1),
                      direc_scene + '/B' + b1 + '-geo.TIF'])
     subprocess.call(['geotifcp', '-e', direc_world,
-                     '{direc}/{scene}_B{band}.TIF'.format(
+                     '{direc}/{scene}_B{band}.TIF.ovr'.format(
                      direc=direc_scene, scene=scene, band=b2),
                      direc_scene + '/B' + b2 + '-geo.TIF'])
     subprocess.call(['geotifcp', '-e', direc_world,
-                     '{direc}/{scene}_B{band}.TIF'.format(
+                     '{direc}/{scene}_B{band}.TIF.ovr'.format(
                      direc=direc_scene, scene=scene, band=b3),
                      direc_scene + '/B' + b3 + '-geo.TIF'])
     print 'done applying world file to previews'
@@ -139,6 +139,12 @@ def my_view(request):
     try:
         out = process_image(direc, scene, root, path, row, b1, b2, b3)
     except:
+        # delete files
+        print 'deleting directory: {}'.format(direc)
+        try:
+            rmtree(direc)           # band images and composite
+        except OSError:
+            print 'error deleting files'
         print 'ERROR rendering files'
         out = u'https://raw.githubusercontent.com/jacquestardie/gifs/master/baby.gif'
 
