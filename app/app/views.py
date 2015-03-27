@@ -73,18 +73,27 @@ def my_view(request):
         print 'done downloading previews from aws'
 
         direc_world = '{}/world.tfw'.format(direc_scene)
+
+        # # rename files
+        # import pdb; pdb.set_trace()
+        # subprocess.call(['mv {direc}/{scene}_B{band}.TIF.ovr {direc}/{scene}_B{band}.TIF'.format(direc=direc_scene, scene=scene, band=b1)])
+        # subprocess.call(['mv {direc}/{scene}_B{band}.TIF.ovr {direc}/{scene}_B{band}.TIF'.format(direc=direc_scene, scene=scene, band=b2)])
+        # subprocess.call(['mv {direc}/{scene}_B{band}.TIF.ovr {direc}/{scene}_B{band}.TIF'.format(direc=direc_scene, scene=scene, band=b3)])
+
+
+
         # direc_scene_band = '{direc}/{scene}_{band}.TIF.ovr'.format(direc=direc, scene=scene, band=b1)
         # Apply the stripped world file to the band previews.
-        subprocess.call(['geotifcp', '-e', direc_world, '{direc}/{scene}_B{band}.TIF.ovr'.format(direc=direc_scene, scene=scene, band=b1), direc + '/B' + b1 + '-geo.TIF'])
-        subprocess.call(['geotifcp', '-e', direc_world, '{direc}/{scene}_B{band}.TIF.ovr'.format(direc=direc_scene, scene=scene, band=b2), direc + '/B' + b2 + '-geo.TIF'])
-        subprocess.call(['geotifcp', '-e', direc_world, '{direc}/{scene}_B{band}.TIF.ovr'.format(direc=direc_scene, scene=scene, band=b3), direc + '/B' + b3 + '-geo.TIF'])
+        subprocess.call(['geotifcp', '-e', direc_world, '{direc}/{scene}_B{band}.TIF.ovr'.format(direc=direc_scene, scene=scene, band=b1), direc_scene + '/B' + b1 + '-geo.TIF'])
+        subprocess.call(['geotifcp', '-e', direc_world, '{direc}/{scene}_B{band}.TIF.ovr'.format(direc=direc_scene, scene=scene, band=b2), direc_scene + '/B' + b2 + '-geo.TIF'])
+        subprocess.call(['geotifcp', '-e', direc_world, '{direc}/{scene}_B{band}.TIF.ovr'.format(direc=direc_scene, scene=scene, band=b3), direc_scene + '/B' + b3 + '-geo.TIF'])
         print 'done applying world file to previews'
 
         # Resize each band
         # subprocess.call(['mkdir', direc + '/ready'])
-        subprocess.call(['gdal_translate', '-outsize', '15%', '15%', direc + '/B' + b1 + '-geo.TIF', direc_scene_scene + '_B' + b1 + '.TIF'])
-        subprocess.call(['gdal_translate', '-outsize', '15%', '15%', direc + '/B' + b2 + '-geo.TIF', direc_scene_scene + '_B' + b2 + '.TIF'])
-        subprocess.call(['gdal_translate', '-outsize', '15%', '15%', direc + '/B' + b3 + '-geo.TIF', direc_scene_scene + '_B' + b3 + '.TIF'])
+        subprocess.call(['gdal_translate', '-outsize', '15%', '15%', direc_scene + '/B' + b1 + '-geo.TIF', direc_scene_scene + '_B' + b1 + '.TIF'])
+        subprocess.call(['gdal_translate', '-outsize', '15%', '15%', direc_scene + '/B' + b2 + '-geo.TIF', direc_scene_scene + '_B' + b2 + '.TIF'])
+        subprocess.call(['gdal_translate', '-outsize', '15%', '15%', direc_scene + '/B' + b3 + '-geo.TIF', direc_scene_scene + '_B' + b3 + '.TIF'])
         print 'done resizing 3 images'
 
         # Call landsat-util
@@ -94,15 +103,15 @@ def my_view(request):
 
         # Convert black to transparent and save as PNG
         file_in = '{}_bands_{}{}{}.TIF'.format(direc_scene_scene, b1, b2, b3)
-        subprocess.call(['convert', '-transparent', 'black', file_in, direc + '/final.png'])
+        subprocess.call(['convert', '-transparent', 'black', file_in, direc_scene + '/final.png'])
 
         conne = boto.connect_s3(aws_access_key_id=AWS_ACCESS_KEY_ID,
              aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
         b = conne.get_bucket('landsatproject')
         k = Key(b)
         k.key = scene + b1 + b2 + b3 + '.png'
-        k.set_contents_from_filename(direc + '/final.png')
-        k.get_contents_to_filename(direc + '/final.png')
+        k.set_contents_from_filename(direc_scene + '/final.png')
+        k.get_contents_to_filename(direc_scene + '/final.png')
         hello = b.get_key(scene + b1 + b2 + b3 + '.png')
         # make public
         hello.set_canned_acl('public-read')

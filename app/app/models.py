@@ -60,6 +60,7 @@ class Rendered_Model(Base):
                                      previewurl=previewurl
                                      )
                 DBSession.add(new)
+                transaction.commit()
             else:
                 entry.update({"previewurl": previewurl})
                 transaction.commit()
