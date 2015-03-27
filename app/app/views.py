@@ -44,17 +44,31 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     download(url=o3, path=direc_scene)
     print 'done downloading previews from aws'
 
+    # # rename files to remove .ovr
+    # os.rename('{direc}/{scene}_B{band}.TIF.ovr'.format(
+    #           direc=direc_scene, scene=scene, band=b1),
+    #           '{direc}/{scene}_B{band}.TIF'.format(
+    #           direc=direc_scene, scene=scene, band=b1))
+    # os.rename('{direc}/{scene}_B{band}.TIF.ovr'.format(
+    #           direc=direc_scene, scene=scene, band=b2),
+    #           '{direc}/{scene}_B{band}.TIF'.format(
+    #           direc=direc_scene, scene=scene, band=b2))
+    # os.rename('{direc}/{scene}_B{band}.TIF.ovr'.format(
+    #           direc=direc_scene, scene=scene, band=b3),
+    #           '{direc}/{scene}_B{band}.TIF'.format(
+    #           direc=direc_scene, scene=scene, band=b3))
+
     # Apply the stripped world file to the band previews.
     subprocess.call(['geotifcp', '-e', direc_world,
-                     '{direc}/{scene}_B{band}.TIF.ovr'.format(
+                     '{direc}/{scene}_B{band}.TIF'.format(
                      direc=direc_scene, scene=scene, band=b1),
                      direc_scene + '/B' + b1 + '-geo.TIF'])
     subprocess.call(['geotifcp', '-e', direc_world,
-                     '{direc}/{scene}_B{band}.TIF.ovr'.format(
+                     '{direc}/{scene}_B{band}.TIF'.format(
                      direc=direc_scene, scene=scene, band=b2),
                      direc_scene + '/B' + b2 + '-geo.TIF'])
     subprocess.call(['geotifcp', '-e', direc_world,
-                     '{direc}/{scene}_B{band}.TIF.ovr'.format(
+                     '{direc}/{scene}_B{band}.TIF'.format(
                      direc=direc_scene, scene=scene, band=b3),
                      direc_scene + '/B' + b3 + '-geo.TIF'])
     print 'done applying world file to previews'
