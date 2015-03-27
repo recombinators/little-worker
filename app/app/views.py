@@ -6,7 +6,6 @@ import boto
 from boto.s3.key import Key
 from pyramid.view import view_config
 from homura import download
-from downloader import Downloader
 from image import Process
 from pyramid.httpexceptions import HTTPFound
 from shutil import rmtree
@@ -25,7 +24,7 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     '''Method to process image'''
     direc_scene = '{direc}/{scene}'.format(direc=direc, scene=scene)
 
-    direc_scene_scene = '{direc}/{scene}/{scene}'.format(direc=direc, scene=scene)
+    direc_scene_scene = '{direc}/{sc}/{sc}'.format(direc=direc, sc=scene)
 
     # Builds a string pointing towards the AWS Landsat datasets
     o1 = '{root}{path}/{row}/{scene}/{scene}_B{band}.TIF.ovr'.format(
@@ -47,30 +46,30 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
 
     # Apply the stripped world file to the band previews.
     subprocess.call(['geotifcp', '-e', direc_world,
-        '{direc}/{scene}_B{band}.TIF.ovr'.format(
-            direc=direc_scene, scene=scene, band=b1),
-        direc_scene + '/B' + b1 + '-geo.TIF'])
+                     '{direc}/{scene}_B{band}.TIF.ovr'.format(
+                     direc=direc_scene, scene=scene, band=b1),
+                     direc_scene + '/B' + b1 + '-geo.TIF'])
     subprocess.call(['geotifcp', '-e', direc_world,
-        '{direc}/{scene}_B{band}.TIF.ovr'.format(
-            direc=direc_scene, scene=scene, band=b2),
-        direc_scene + '/B' + b2 + '-geo.TIF'])
+                     '{direc}/{scene}_B{band}.TIF.ovr'.format(
+                     direc=direc_scene, scene=scene, band=b2),
+                     direc_scene + '/B' + b2 + '-geo.TIF'])
     subprocess.call(['geotifcp', '-e', direc_world,
-        '{direc}/{scene}_B{band}.TIF.ovr'.format(
-            direc=direc_scene, scene=scene, band=b3),
-        direc_scene + '/B' + b3 + '-geo.TIF'])
+                     '{direc}/{scene}_B{band}.TIF.ovr'.format(
+                     direc=direc_scene, scene=scene, band=b3),
+                     direc_scene + '/B' + b3 + '-geo.TIF'])
     print 'done applying world file to previews'
 
     # Resize each band
     # subprocess.call(['mkdir', direc + '/ready'])
     subprocess.call(['gdal_translate', '-outsize', '15%', '15%',
-        direc_scene + '/B' + b1 + '-geo.TIF',
-        direc_scene_scene + '_B' + b1 + '.TIF'])
+                     direc_scene + '/B' + b1 + '-geo.TIF',
+                     direc_scene_scene + '_B' + b1 + '.TIF'])
     subprocess.call(['gdal_translate', '-outsize', '15%', '15%',
-        direc_scene + '/B' + b2 + '-geo.TIF',
-        direc_scene_scene + '_B' + b2 + '.TIF'])
+                     direc_scene + '/B' + b2 + '-geo.TIF',
+                     direc_scene_scene + '_B' + b2 + '.TIF'])
     subprocess.call(['gdal_translate', '-outsize', '15%', '15%',
-        direc_scene + '/B' + b3 + '-geo.TIF',
-        direc_scene_scene + '_B' + b3 + '.TIF'])
+                     direc_scene + '/B' + b3 + '-geo.TIF',
+                     direc_scene_scene + '_B' + b3 + '.TIF'])
     print 'done resizing 3 images'
 
     # Call landsat-util to merge images
@@ -85,7 +84,7 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
 
     # upload to s3
     conne = boto.connect_s3(aws_access_key_id=AWS_ACCESS_KEY_ID,
-         aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+                            aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
     b = conne.get_bucket('landsatproject')
     k = Key(b)
     k.key = scene + b1 + b2 + b3 + '.png'
