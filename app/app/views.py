@@ -26,8 +26,8 @@ def delete_directory(direc):
         if os.path.exists(direc):
             rmtree(direc)
     except OSError:
-        raise Exception('error deleting files')
-
+        pass
+    #     raise Exception('error deleting files')
 
 def process_image(direc, scene, root, path, row, b1, b2, b3):
     '''Method to process image'''
