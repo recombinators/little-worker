@@ -39,24 +39,11 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     if not os.path.exists(direc_scene):
         os.makedirs(direc_scene)
 
-    # Download a sacrificial band(1) using Landsat-util
-    # dl = Downloader(verbose=True, download_dir=direc)
-    # dl.download([str(scene)], [geo])
-
-    # Strip the geospatial metadata from a legitimate Landsat band.
-    # Create a world.tfw to reapply to previews.
-    # geo variable represents the band we grab geo data from
-    # subprocess.call(['listgeo', '-tfw', direc + '_B{}.TIF'.format(geo)])
-    # os.rename(direc_scene_scene + '_B{}.tfw'.format(geo), direc_scene + '/' + 'world.tfw')
-
     # Download previews from AWS
     download(url=o1, path=direc_scene)
     download(url=o2, path=direc_scene)
     download(url=o3, path=direc_scene)
     print 'done downloading previews from aws'
-
-    print 'direc_world: {}'.format(direc_world)
-    import pdb; pdb.set_trace()
 
     # Apply the stripped world file to the band previews.
     subprocess.call(['geotifcp', '-e', direc_world,
@@ -86,7 +73,7 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
         direc_scene_scene + '_B' + b3 + '.TIF'])
     print 'done resizing 3 images'
 
-    # Call landsat-util
+    # Call landsat-util to merge images
     t = direc + '/' + scene
     processor = Process(t, [b1, b2, b3], direc, verbose=True)
     processor.run(pansharpen=False)
@@ -96,6 +83,7 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     subprocess.call(['convert', '-transparent', 'black',
                     file_in, direc_scene + '/final.png'])
 
+    # upload to s3
     conne = boto.connect_s3(aws_access_key_id=AWS_ACCESS_KEY_ID,
          aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
     b = conne.get_bucket('landsatproject')
@@ -123,6 +111,7 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
 
 @view_config(route_name='home', renderer='json')
 def my_view(request):
+    """A view for rendering or retreiving an image on demand."""
     direc = os.getcwd() + '/scenes'
     scene = request.matchdict['id']
     root = 'http://landsat-pds.s3.amazonaws.com/L8/'
