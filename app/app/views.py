@@ -23,11 +23,12 @@ direc_world = '{}/world.tfw'.format(os.getcwd())
 
 def delete_directory(direc):
     # delete files
-    print 'deleting directory: {}'.format(direc)
-    try:
-        rmtree(direc)
-    except OSError:
-        raise Exception('error deleting files')
+    # print 'deleting directory: {}'.format(direc)
+    # try:
+    #     rmtree(direc)
+    # except OSError:
+    #     raise Exception('error deleting files')
+    pass
 
 
 def process_image(direc, scene, root, path, row, b1, b2, b3):
@@ -37,11 +38,11 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     direc_scene_scene = '{direc}/{sc}/{sc}'.format(direc=direc, sc=scene)
 
     band_list = [b1, b2, b3]
-    o_list = ['o1', 'o2', 'o3']
+    o_list = []
     # Builds a string pointing towards the AWS Landsat datasets
-    for b, i in zip(band_list, o_list):
-        i = '{root}{path}/{row}/{scene}/{scene}_B{band}.TIF.ovr'.format(
-                    root=root, path=path, row=row, scene=scene, band=b)
+    for b in band_list:
+        o_list.append('{root}{path}/{row}/{scene}/{scene}_B{band}.TIF.ovr'.
+                    format(root=root, path=path, row=row, scene=scene, band=b))
 
     # Create a subdirectory
     if not os.path.exists(direc_scene):
@@ -52,25 +53,33 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
         for i in o_list:
             download(url=i, path=direc_scene)
     except:
-        out = 'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/faileddownload.png'
-        raise Exception('Download failed')
+        out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/faileddownload.png'
+        return out
+        # raise Exception('Download failed')
 
     print 'done downloading previews from aws'
-
     # Apply the stripped world file to the band previews.
     for b in band_list:
+        file_name = '{}/B{}-geo.TIF'.format(direc_scene, b)
         subprocess.call(['geotifcp', '-e', direc_world,
                          '{direc}/{scene}_B{band}.TIF.ovr'.format(
                          direc=direc_scene, scene=scene, band=b),
-                         direc_scene + '/B' + b1 + '-geo.TIF'])
+                         file_name])
+
+
     print 'done applying world file to previews'
 
     # Resize each band
     # subprocess.call(['mkdir', direc + '/ready'])
     for b in band_list:
+        file_name = '{}/B{}-geo.TIF'.format(direc_scene, b)
+        file_name2 = '{}_B{}.TIF'.format(direc_scene_scene, b)
         subprocess.call(['gdal_translate', '-outsize', '15%', '15%',
-                         direc_scene + '/B' + b + '-geo.TIF',
-                         direc_scene_scene + '_B' + b + '.TIF'])
+                         file_name, file_name2])
+        if not os.path.exists(file_name2):
+            out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/badmagicnumber.png'
+            return out
+            # raise Exception('Bad magic number')
     print 'done resizing 3 images'
 
     # Call landsat-util to merge images
@@ -80,7 +89,8 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
         processor.run(pansharpen=False)
     except:
         out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/processfailed.png'
-        raise Exception('Processing/landsat-util failed')
+        return out
+        # raise Exception('Processing/landsat-util failed')
 
     # Convert black to transparent and save as PNG
     file_in = '{}_bands_{}{}{}.TIF'.format(direc_scene_scene, b1, b2, b3)
@@ -90,7 +100,8 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     # check if final.png exists
     if not os.path.isfile('{}/final.png'.format(direc_scene)):
         out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/finalpngnotcomposed.png'
-        raise Exception('Final.png not rendered')
+        return out
+        # raise Exception('Final.png not rendered')
 
     # upload to s3
     try:
@@ -107,7 +118,8 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
         out = hello.generate_url(0, query_auth=False, force_http=True)
     except:
         out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/connectiontoS3failed.png'
-        raise Exception('S3 upload failed')
+        return out
+        # raise Exception('S3 upload failed')
 
     # delete files
     delete_directory(direc)
@@ -129,17 +141,14 @@ def my_view(request):
 
     # Check if image already exists.
     out = Rendered_Model.preview_available(scene, b1, b2, b3)
-    if out:
-        return HTTPFound(location=out)
-
-    try:
-        out = process_image(direc, scene, root, path, row, b1, b2, b3)
-        # store url in db
-        Rendered_Model.update_p_url(scene, b1, b2, b3, out)
-    except Exception as e:
-        print e
-        # delete files
-        delete_directory(direc)
-        # out = u'https://raw.githubusercontent.com/jacquestardie/gifs/master/baby.gif'
+    if not out:
+        try:
+            out = process_image(direc, scene, root, path, row, b1, b2, b3)
+            # store url in db
+            Rendered_Model.update_p_url(scene, b1, b2, b3, out)
+        except:
+            # delete files
+            delete_directory(direc)
+            # out = u'https://raw.githubusercontent.com/jacquestardie/gifs/master/baby.gif'
 
     return HTTPFound(location=out)
