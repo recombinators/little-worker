@@ -149,6 +149,6 @@ def my_view(request):
         except:
             # delete files
             delete_directory(direc)
-            # out = u'https://raw.githubusercontent.com/jacquestardie/gifs/master/baby.gif'
+            out = u'https://raw.githubusercontent.com/jacquestardie/gifs/master/baby.gif'
 
     return HTTPFound(location=out)
