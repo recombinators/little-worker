@@ -48,8 +48,7 @@ class Rendered_Model(Base):
             entry = DBSession.query(cls).filter(cls.entityid == scene,
                                                 cls.band1 == band1,
                                                 cls.band2 == band2,
-                                                cls.band3 == band3,
-                                                cls.previewurl.is_(None))
+                                                cls.band3 == band3)
             # if there is no existing entry, add it.
             if entry.count() == 0:
                 new = Rendered_Model(
