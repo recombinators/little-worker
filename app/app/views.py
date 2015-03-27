@@ -116,6 +116,8 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
         return out
         # raise Exception('S3 upload failed')
 
+    # store url in db
+    Rendered_Model.update_p_url(scene, b1, b2, b3, out)
     # delete files
     delete_directory(direc)
     return out
@@ -138,8 +140,6 @@ def my_view(request):
     if not out:
         try:
             out = process_image(direc, scene, root, path, row, b1, b2, b3)
-            # store url in db
-            Rendered_Model.update_p_url(scene, b1, b2, b3, out)
         except:
             # delete files
             delete_directory(direc)
