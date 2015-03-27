@@ -23,7 +23,8 @@ direc_world = '{}/world.tfw'.format(os.getcwd())
 def delete_directory(direc):
     # delete files
     try:
-        rmtree(direc)
+        if os.path.exists(direc):
+            rmtree(direc)
     except OSError:
         raise Exception('error deleting files')
 
