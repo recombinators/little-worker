@@ -132,9 +132,9 @@ def my_view(request):
     b3 = request.matchdict['b3']
 
     # Check if image already exists.
-    out = Rendered_Model.preview_available(scene, b1, b2, b3)
-    if out:
-        return HTTPFound(location=out)
+    # out = Rendered_Model.preview_available(scene, b1, b2, b3)
+    # if out:
+    #     return HTTPFound(location=out)
 
     try:
         out = process_image(direc, scene, root, path, row, b1, b2, b3)
