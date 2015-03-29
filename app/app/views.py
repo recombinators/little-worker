@@ -30,7 +30,7 @@ def delete_directory(direc):
     #     raise Exception('error deleting files')
 
 def process_image(direc, scene, root, path, row, b1, b2, b3):
-    '''Method to process image'''
+    '''Method to process preview image'''
     direc_scene = '{direc}/{scene}'.format(direc=direc, scene=scene)
 
     direc_scene_scene = '{direc}/{sc}/{sc}'.format(direc=direc, sc=scene)
@@ -142,6 +142,7 @@ def my_view(request):
         try:
             out = process_image(direc, scene, root, path, row, b1, b2, b3)
         except:
+            # If error in processing image, render aws image as default.
             # delete files
             delete_directory(direc)
             out = "https://s3-us-west-2.amazonaws.com/landsat-pds/L8/{path}/{row}/{scene}/{scene}_thumb_large.jpg".format(
