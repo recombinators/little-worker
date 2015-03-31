@@ -39,7 +39,7 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     o_list = []
     # Builds a string pointing towards the AWS Landsat datasets
     for b in band_list:
-        o_list.append('{root}{path}/{row}/{scene}/{scene}_B{band}.TIF.ovr'.
+        o_list.append('{root}{path}/{row}/{scene}/{scene}_B{band}.TIF'.
                     format(root=root, path=path, row=row, scene=scene, band=b))
 
     # Create a subdirectory
@@ -56,19 +56,19 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
         raise Exception('Download failed')
 
     print 'done downloading previews from aws'
-    # Apply the stripped world file to the band previews.
-    for b in band_list:
-        file_name = '{}/B{}-geo.TIF'.format(direc_scene, b)
-        subprocess.call(['geotifcp', '-e', direc_world,
-                         '{direc}/{scene}_B{band}.TIF.ovr'.format(
-                         direc=direc_scene, scene=scene, band=b),
-                         file_name])
-    print 'done applying world file to previews'
+    # # Apply the stripped world file to the band previews.
+    # for b in band_list:
+    #     file_name = '{}/B{}-geo.TIF'.format(direc_scene, b)
+    #     subprocess.call(['geotifcp', '-e', direc_world,
+    #                      '{direc}/{scene}_B{band}.TIF.ovr'.format(
+    #                      direc=direc_scene, scene=scene, band=b),
+    #                      file_name])
+    # print 'done applying world file to previews'
 
     # Resize each band
-    # subprocess.call(['mkdir', direc + '/ready'])
-    for b in band_list:
-        file_name = '{}/B{}-geo.TIF'.format(direc_scene, b)
+    for b, o in zip(band_list, o_list):
+        # file_name = '{}/B{}-geo.TIF'.format(direc_scene, b)
+        file_name = o
         file_name2 = '{}_B{}.TIF'.format(direc_scene_scene, b)
         subprocess.call(['gdal_translate', '-outsize', '15%', '15%',
                          file_name, file_name2])
@@ -108,7 +108,7 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
         k.key = scene + b1 + b2 + b3 + '.png'
         k.set_contents_from_filename(direc_scene + '/final.png')
         k.get_contents_to_filename(direc_scene + '/final.png')
-        hello = b.get_key(scene + b1 + b2 + b3 + '.png')
+        hello = b.get_key(scene + b1 + b2 + b3 + 'pre.png')
         # make public
         hello.set_canned_acl('public-read')
         out = hello.generate_url(0, query_auth=False, force_http=True)
@@ -145,8 +145,8 @@ def my_view(request):
             # If error in processing image, render aws image as default.
             # delete files
             delete_directory(direc)
-            out = "https://s3-us-west-2.amazonaws.com/landsat-pds/L8/{path}/{row}/{scene}/{scene}_thumb_large.jpg".format(
-                    path=path, row=row, scene=scene)
+            # out = "https://s3-us-west-2.amazonaws.com/landsat-pds/L8/{path}/{row}/{scene}/{scene}_thumb_large.jpg".format(
+            #         path=path, row=row, scene=scene)
             # out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/errordeletingfiles.png'
 
     return HTTPFound(location=out)
