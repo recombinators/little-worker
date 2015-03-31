@@ -23,8 +23,9 @@ direc_world = '{}/world.tfw'.format(os.getcwd())
 def delete_directory(direc):
     # delete files
     try:
-        if os.path.exists(direc):
-            rmtree(direc)
+        # if os.path.exists(direc):
+        #     rmtree(direc)
+        pass
     except OSError:
         pass
     #     raise Exception('error deleting files')
@@ -42,6 +43,10 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     for b in band_list:
         o_list.append('{root}{path}/{row}/{scene}/{scene}_B{band}.TIF'.
                     format(root=root, path=path, row=row, scene=scene, band=b))
+
+    # Create a subdirectory
+    if not os.path.exists(direc_scene):
+        os.makedirs(direc_scene)
 
     # Create a subdirectory
     if not os.path.exists(direc_scene):
@@ -65,13 +70,15 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     #                      direc=direc_scene, scene=scene, band=b),
     #                      file_name])
     # print 'done applying world file to previews'
-
+    delete_me = []
+    import pdb; pdb.set_trace()
     # Resize each band
     for b in band_list:
         # file_name = '{}/B{}-geo.TIF'.format(direc_scene, b)
         file_name = '{direc}/{scene}_B{band}.TIF'.format(direc=direc_scene, scene=scene, band=b)
-        file_name2 = '{}/temp/{}_B{}re.TIF'.format(direc_scene, scene, b)
-        subprocess.call(['gdal_translate', '-outsize', '2%', '2%',
+        delete_me.append(file_name)
+        file_name2 = '{}_B{}re.TIF'.format(direc_scene_scene, b)
+        subprocess.call(['gdal_translate', '-outsize', '10%', '10c%',
                          file_name, file_name2])
         if not os.path.exists(file_name2):
             out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/badmagicnumber.png'
@@ -79,8 +86,14 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
             raise Exception('Bad magic number')
     print 'done resizing 3 images'
 
+    for x in delete_me:
+        os.remove(x)
+
+
+
+
     # Call landsat-util to merge images
-    t = direc_scene + '/temp/' + scene
+    t = direc_scene + '/'
     try:
         processor = Process(t, [b1, b2, b3], direc, verbose=True)
         processor.run(pansharpen=False)
