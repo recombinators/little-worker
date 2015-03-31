@@ -23,9 +23,8 @@ direc_world = '{}/world.tfw'.format(os.getcwd())
 def delete_directory(direc):
     # delete files
     try:
-        # if os.path.exists(direc):
-        #     rmtree(direc)
-        pass
+        if os.path.exists(direc):
+            rmtree(direc)
     except OSError:
         pass
         raise Exception('error deleting files')
@@ -88,8 +87,6 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
 
     for i, o in zip(rename_me, delete_me):
         os.rename(i, o)
-
-    import pdb; pdb.set_trace()
 
     # Call landsat-util to merge images
     t = direc + '/' + scene
