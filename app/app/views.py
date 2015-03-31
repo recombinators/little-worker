@@ -28,7 +28,7 @@ def delete_directory(direc):
         pass
     except OSError:
         pass
-    #     raise Exception('error deleting files')
+        raise Exception('error deleting files')
 
 
 def process_image(direc, scene, root, path, row, b1, b2, b3):
@@ -48,10 +48,6 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     if not os.path.exists(direc_scene):
         os.makedirs(direc_scene)
 
-    # Create a subdirectory
-    if not os.path.exists(direc_scene):
-        os.makedirs(direc_scene)
-
     try:
         # Download previews from AWS
         for i in o_list:
@@ -59,7 +55,7 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     except:
         out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/faileddownload.png'
         # return out
-        raise Exception('Download failed')
+        # raise Exception('Download failed')
 
     print 'done downloading previews from aws'
     # # Apply the stripped world file to the band previews.
@@ -71,36 +67,39 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     #                      file_name])
     # print 'done applying world file to previews'
     delete_me = []
-    import pdb; pdb.set_trace()
+    rename_me = []
     # Resize each band
     for b in band_list:
         # file_name = '{}/B{}-geo.TIF'.format(direc_scene, b)
         file_name = '{direc}/{scene}_B{band}.TIF'.format(direc=direc_scene, scene=scene, band=b)
         delete_me.append(file_name)
-        file_name2 = '{}_B{}re.TIF'.format(direc_scene_scene, b)
+        file_name2 = '{direc}/{scene}_B{band}.TIF.re'.format(direc=direc_scene, scene=scene, band=b)
+        rename_me.append(file_name2)
         subprocess.call(['gdal_translate', '-outsize', '10%', '10c%',
                          file_name, file_name2])
-        if not os.path.exists(file_name2):
+        if not os.path.exists(file_name):
             out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/badmagicnumber.png'
             # return out
-            raise Exception('Bad magic number')
+            # raise Exception('Bad magic number')
     print 'done resizing 3 images'
 
-    for x in delete_me:
-        os.remove(x)
+    for i in delete_me:
+        os.remove(i)
 
+    for i, o in zip(rename_me, delete_me):
+        os.rename(i, o)
 
-
+    import pdb; pdb.set_trace()
 
     # Call landsat-util to merge images
-    t = direc_scene + '/'
+    t = direc + '/' + scene
     try:
         processor = Process(t, [b1, b2, b3], direc, verbose=True)
         processor.run(pansharpen=False)
     except:
         out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/processfailed.png'
         # return out
-        raise Exception('Processing/landsat-util failed')
+        # raise Exception('Processing/landsat-util failed')
 
     # Convert black to transparent and save as PNG
     file_in = '{}_bands_{}{}{}.TIF'.format(direc_scene_scene, b1, b2, b3)
@@ -111,7 +110,7 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     if not os.path.isfile('{}/final.png'.format(direc_scene)):
         out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/finalpngnotcomposed.png'
         # return out
-        raise Exception('Final.png not rendered')
+        # raise Exception('Final.png not rendered')
 
     # upload to s3
     try:
@@ -129,7 +128,7 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     except:
         out = u'https://raw.githubusercontent.com/recombinators/little-worker/master/failimages/connectiontoS3failed.png'
         # return out
-        raise Exception('S3 upload failed')
+        # raise Exception('S3 upload failed')
 
     # store url in db
     Rendered_Model.update_p_url(scene, b1, b2, b3, out)
