@@ -29,6 +29,7 @@ def delete_directory(direc):
         pass
     #     raise Exception('error deleting files')
 
+
 def process_image(direc, scene, root, path, row, b1, b2, b3):
     '''Method to process preview image'''
     direc_scene = '{direc}/{scene}'.format(direc=direc, scene=scene)
@@ -66,9 +67,9 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
     # print 'done applying world file to previews'
 
     # Resize each band
-    for b, o in zip(band_list, o_list):
+    for b in band_list:
         # file_name = '{}/B{}-geo.TIF'.format(direc_scene, b)
-        file_name = o
+        file_name = '{direc}/{scene}_B{band}.TIF'.format(direc=direc_scene, scene=scene, band=b)
         file_name2 = '{}_B{}.TIF'.format(direc_scene_scene, b)
         subprocess.call(['gdal_translate', '-outsize', '15%', '15%',
                          file_name, file_name2])
