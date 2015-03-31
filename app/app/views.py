@@ -118,7 +118,7 @@ def process_image(direc, scene, root, path, row, b1, b2, b3):
         k.key = scene + b1 + b2 + b3 + '.png'
         k.set_contents_from_filename(direc_scene + '/final.png')
         k.get_contents_to_filename(direc_scene + '/final.png')
-        hello = b.get_key(scene + b1 + b2 + b3 + 'pre.png')
+        hello = b.get_key(scene + b1 + b2 + b3 + '.png')
         # make public
         hello.set_canned_acl('public-read')
         out = hello.generate_url(0, query_auth=False, force_http=True)
